@@ -1,0 +1,55 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<style>
+    body,
+    html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+</style>
+
+<div id="videoContainer">
+    <video id="videoPlayer" muted>
+    </video>
+</div>
+
+<script>
+    const videoPlayer = document.getElementById('videoPlayer');
+    videoSources = [];
+    currentPlayVids = [];
+    let currentVideoIndex = 0;
+    function playNextVideo() {
+        fetch('/Index?handler=Json')
+            .then(response => response.json())
+            .then(data => {
+                videoSources = JSON.parse(data);
+                if (currentVideoIndex >= videoSources.length) {
+                    currentVideoIndex = videoSources.length - 1;
+                }
+                videoPlayer.src = "./media/" + videoSources[currentVideoIndex];
+                videoPlayer.play();
+                currentVideoIndex = (currentVideoIndex + 1) % videoSources.length;
+            })
+            .catch(error => console.error('Error:', error));
+    }
+    
+    videoPlayer.addEventListener('ended', playNextVideo);
+    // Start playing the first video     
+    playNextVideo();
+</script>
